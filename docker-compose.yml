@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  web:
+    image: masonite.app
+    build: .
+    restart: always
+    command: gunicorn -w 4 wsgi:application -t 4000 -b 0.0.0.0:8000 --reload
+    volumes:
+      - .:/usr/src/app/
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
