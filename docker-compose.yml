@@ -4,10 +4,30 @@ services:
     image: masonite.app
     build: .
     restart: always
-    command: gunicorn -w 4 wsgi:application -t 4000 -b 0.0.0.0:8000 --reload
+    command: gunicorn -w 4 wsgi:application -t 4000 -b 0.0.0.0 --reload
     volumes:
       - .:/usr/src/app/
     ports:
       - "8000:8000"
+    depends_on:
+      - db
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    env_file:
+      - .env.docker
+
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres"]
+      retries: 3
+      timeout: 5s
+
+volumes:
+  postgres_data:
